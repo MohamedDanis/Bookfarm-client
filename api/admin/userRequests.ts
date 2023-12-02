@@ -167,3 +167,19 @@ export const showCart =async () => {
     const {data} = await userApi.get('/cart')
     return data
 }
+
+export const incCart =async (product:any) => {
+    console.log(product);
+    
+    const {data} = await userApi.put('/cart/inc',{productId:product})
+    console.log(data);
+    
+    return data
+}
+
+export const decCart =async (product:any) => {
+    console.log(product);
+    
+    const {data} = await userApi.put('/cart/dec',{productId:product})
+    return data
+}

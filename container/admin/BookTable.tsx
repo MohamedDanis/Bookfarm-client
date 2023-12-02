@@ -14,6 +14,7 @@ import {
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table";
+import { Switch } from "@/components/ui/switch"
 import {
   AlertDialog,
   AlertDialogAction,
@@ -50,12 +51,14 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import Link from "next/link";
+import { changeSale } from "@/api/admin/adminAuthRequest";
 
 export type Payment = {
   _id: string;
   title: string;
   author: string;
   genre: string;
+  sale:boolean;
   availability: number;
 };
 
@@ -106,8 +109,19 @@ export const columns: ColumnDef<Payment>[] = [
     header: () => <div className="text-right">Author</div>,
   },
   {
-    accessorKey: "genre",
-    header: () => <div className="text-right">Category</div>,
+    accessorKey: "sale",
+    header: () => <div className="text-right">Sale</div>,
+    cell:({row})=>(
+      <Switch
+        checked={row.getValue("sale")}
+        onCheckedChange={async() => {
+          
+          const res  =await changeSale(row.original._id)
+
+          // row.setValue("sale", value)
+        }}
+      />
+    )
   },
   {
     accessorKey: "availability",

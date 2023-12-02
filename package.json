@@ -49,6 +49,7 @@
     "moment": "^2.29.4",
     "next": "latest",
     "next-themes": "^0.2.1",
+    "radix-ui": "^1.0.1",
     "razorpay": "^2.9.2",
     "react": "latest",
     "react-day-picker": "^8.9.1",
@@ -70,6 +71,7 @@
     "zod": "^3.22.2"
   },
   "devDependencies": {
+    "@types/bluebird": "^3.5.42",
     "@types/node": "latest",
     "@types/react": "latest",
     "@types/react-dom": "latest",

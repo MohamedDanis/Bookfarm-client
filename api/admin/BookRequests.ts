@@ -1,4 +1,4 @@
-import {adminApi} from '../../utils/ApiCalls'
+import {adminApi, userApi} from '../../utils/ApiCalls'
 adminApi.interceptors.request.use((req) => {
     if (localStorage.getItem("token")) {
       req.headers.Authorization = "Bearer " + localStorage.getItem("token");
@@ -110,6 +110,16 @@ export const borrowers =async (bookId:any) => {
 export const borrowersHistory =async (bookId:any) => {
     try {
         const {data}= await adminApi.get(`/borrowers/history/${bookId}`)
+        return data
+    } catch (error) {
+        console.log(error);
+        
+    }
+}
+
+export const latestBooks =async () => {
+    try {
+        const {data}= await userApi.get('/latest/books')
         return data
     } catch (error) {
         console.log(error);

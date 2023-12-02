@@ -8,6 +8,7 @@ import Container from "@/components/ui/container";
 import { CartCounter, StarRating } from "@/container/user";
 import { Button } from "@/components/ui/button";
 import { Bookmark } from "lucide-react";
+import styles from './store.module.css'
 import {
   Tooltip,
   TooltipContent,
@@ -18,6 +19,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import Breadcrumb from "@/components/general/BreadCrump";
 import { useDispatch, useSelector } from "react-redux";
 import { setItems } from "@/redux/cartSlice";
+import { ReadMore } from "@/components/general";
 
 const BookDetails = () => {
   const router = useRouter();
@@ -26,7 +28,6 @@ const BookDetails = () => {
   const id = router.query.id as string;
   const [key, setKey] = useState(0);
   const cart = useSelector((state:any)=>state.carts.products)
-  console.log(cart);
   const fetcher = useCallback((id:any) => showBookDetails(id), []);
   const memoizedFetcher = useCallback(() => {
     return fetcher(id);
@@ -36,12 +37,8 @@ const BookDetails = () => {
 console.log(data);
 
 useEffect(() => {
-  console.log(data);
-  console.log(cart);
-  
   let itemIndex = cart.findIndex((item:any) => item?.productId?._id === data?._id);
-  console.log(data?.title);
-  console.log(itemIndex);
+  setKey(itemIndex)
   if(itemIndex > -1){
     setCartClicked(true)
   }
@@ -59,6 +56,7 @@ useEffect(() => {
     console.log(res);
     const getCart =async () => {
       const res1 = await showCart()
+      console.log(res1);
       dispatch(setItems(res1.products))
     }
     await getCart()
@@ -75,32 +73,39 @@ useEffect(() => {
           isLoading ? (
             <Skeleton className="w-[300px] h-[400px]"/>
           ):(
-            <Image
+            <div className={styles.bookcontainer}>
+              <div className={styles.book}>
+               <Image
             src={data?.coverimage}
             alt="bookcover"
             className=""
             width={300}
-            height={300}
+            height={800}
           />
+            </div>
+            </div>
+            
+           
           )
         }
        
         <section className="flex flex-col gap-y-6 w-2/3">
-          <h2 className="text-lg font-medium">Rs.120</h2>
+          <h2 className="text-lg font-medium">Rs. {data?.price}</h2>
           <h1 className="text-5xl font-bold">
             {data?.title}
           </h1>
           <StarRating rating={4} />
-          <p className="w-3/4">
-            Lorem ipsum dolor sit amet consectetur, adipisicing elit. Deserunt
-            dolore labore rerum maiores officiis aspernatur unde ipsa, adipisci
-            itaque eos dolores, obcaecati quam voluptate corporis voluptatum
-            nulla commodi natus sunt.
-          </p>
+          <div>
+          <h1>Description</h1>
+          <ReadMore>
+          {data?.description}
+          </ReadMore>
+        
+          </div>
           <div className="flex gap-3">
             {
               cartclicked && (
-                <CartCounter count={1}/>
+                <CartCounter count={cart[key]?.quantity} productId={data?._id}/>
               )
             }
             <Button className="bg-[#547C5A] px-8 py-2" onClick={handleCart}>{cartclicked ? "ADDED":"ADD TO CART"}</Button>

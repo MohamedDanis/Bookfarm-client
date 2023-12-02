@@ -2,7 +2,8 @@
   "/_app": "pages/_app.js",
   "/_error": "pages/_error.js",
   "/_document": "pages/_document.js",
-  "/admin/books": "pages/admin/books.js",
+  "/store/[id]": "pages/store/[id].js",
   "/cart": "pages/cart.js",
-  "/admin/books/[id]": "pages/admin/books/[id].js"
+  "/store": "pages/store.js",
+  "/admin/books": "pages/admin/books.js"
 }

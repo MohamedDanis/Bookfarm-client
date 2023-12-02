@@ -56,8 +56,8 @@ const ACCEPTED_IMAGE_TYPES = [
 const accountFormSchema = z.object({
   title: z.string().min(5, "bookname should be atleast 5 characters"),
   author: z.string().min(5, "author name should be atleast 5 characters"),
-  genre: z.string({
-    required_error: "Please select a genre.",
+  genre: z.array(z.string(), {
+    required_error: "Please select at least one genre.",
   }),
   bookcover: z
     .any()
@@ -79,15 +79,18 @@ type AccountFormValues = z.infer<typeof accountFormSchema>;
 const defaultValues: Partial<AccountFormValues> = {
   title: "",
   author: "",
-  genre:"",
+  genre:[],
   bookcover: undefined,
   quantity: "",
 };
 
 export function SampleForm({ onOpenChange }: BookFormProps) {
   const [isLoading, setIsLoading] = useState(false);
+  const [selected, setSelected] = useState([]);
   const [file,setFile]=useState<string>('')
   const [genre,setGenre]=useState([])
+  console.log(selected);
+  
   useEffect(() => {
     const getCategories = async()=>{
       const res = await showCategories()
@@ -191,7 +194,9 @@ export function SampleForm({ onOpenChange }: BookFormProps) {
                         !field.value && "text-muted-foreground"
                       )}
                     >
-                        {field.value ? field.value : "Select Category"}
+                        {field.value && field.value.length > 0
+                        ? `${field.value.length} genre selected`
+                        : "Select Category"}
                       <CaretSortIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                     </Button>
                   </FormControl>
@@ -208,15 +213,27 @@ export function SampleForm({ onOpenChange }: BookFormProps) {
                         <CommandItem
                           value={gen?.name}
                           key={index}
-                          onSelect={() => {
-                            form.setValue("genre", gen?.name)
+                          onSelect={()=>{
+                            const selectedGenres = [...field.value];
+                            if (!selectedGenres.includes(gen?.name)) {
+                              selectedGenres.push(gen?.name);
+                              form.setValue("genre", selectedGenres);
+                            }else{
+                              const selectedGenres = field.value.filter(
+                                (selectedGenre: string) => selectedGenre !== gen?.name
+                              );
+                              form.setValue("genre", selectedGenres);
+                            }
                           }}
+                          // onSelect={() => {
+                          //   form.setValue("genre", gen?.name)
+                          // }}
                         >
                           {gen?.name}
                           <CheckIcon
                             className={cn(
                               "ml-auto h-4 w-4",
-                              gen?.name === field.value
+                              field.value.includes(gen?.name)
                                 ? "opacity-100"
                                 : "opacity-0"
                             )}
@@ -227,6 +244,15 @@ export function SampleForm({ onOpenChange }: BookFormProps) {
                   </Command>
                 </PopoverContent>
               </Popover>
+              <FormDescription className="flex gap-2">
+                {field.value && field.value.length > 0 && (
+                  field.value.map((genre,index)=>(
+                    <div key={index} className="bg-[#67C900]/50  rounded-full px-2 py-1 w-fit text-black font-medium">{genre}</div>
+                  ))
+                  
+                ) }
+               
+                </FormDescription>
               <FormMessage />
             </FormItem>
           )}

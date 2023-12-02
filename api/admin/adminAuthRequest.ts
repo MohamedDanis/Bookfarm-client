@@ -23,6 +23,12 @@ export const userDetails = async()=>{
     return data
 }
 
+export const changeSale = async(id:string)=>{
+    const {data} = await adminApi.post(`/booksale/${id}`)
+    return data
+
+}
+
 adminApi.interceptors.request.use((req) => {
     if (localStorage.getItem("token")) {
       req.headers.Authorization = "Bearer " + localStorage.getItem("token");
@@ -35,6 +41,7 @@ userApi.interceptors.request.use((req) => {
     }
     return req;
   });
+
   
   // checking token is expired or not
 //   adminApi.interceptors.response.use(

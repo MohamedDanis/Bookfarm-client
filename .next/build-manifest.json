@@ -27,15 +27,15 @@
       "static/chunks/main.js",
       "static/chunks/pages/admin/books.js"
     ],
-    "/admin/books/[id]": [
+    "/store": [
       "static/chunks/webpack.js",
       "static/chunks/main.js",
-      "static/chunks/pages/admin/books/[id].js"
+      "static/chunks/pages/store.js"
     ],
-    "/cart": [
+    "/store/[id]": [
       "static/chunks/webpack.js",
       "static/chunks/main.js",
-      "static/chunks/pages/cart.js"
+      "static/chunks/pages/store/[id].js"
     ]
   },
   "ampFirstPages": []

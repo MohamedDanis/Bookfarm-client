@@ -35,10 +35,10 @@ const ClientHeader = () => {
           };
           GetUser();
         }
-        // if(!token){
-        //   router.push('/login')
-        //   return
-        // }
+        if(!token){
+          router.push('/')
+          return
+        }
       
         if(cart.length === 0){
           const getCart =async () => {

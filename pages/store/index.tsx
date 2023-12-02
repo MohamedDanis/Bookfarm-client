@@ -16,6 +16,9 @@ import bokcover from '../../public/imgs/bookcover.jpeg'
 import { Button } from "@/components/ui/button";
 import { ShoppingBag } from "lucide-react";
 import Link from "next/link";
+import { useSelector } from "react-redux";
+import { latestBooks } from "@/api/admin/BookRequests";
+import Marquee from "react-fast-marquee";
 
 
 
@@ -25,54 +28,25 @@ interface Book {
   author: string;
   price: number;
 }
-
-const books: Book[] = [
-  { id: 1, title: "The Great Gatsby", author: "F. Scott Fitzgerald", price: 9.99 },
-  { id: 2, title: "To Kill a Mockingbird", author: "Harper Lee", price: 12.99 },
-  { id: 3, title: "1984", author: "George Orwell", price: 7.99 },
-  { id: 4, title: "Pride and Prejudice", author: "Jane Austen", price: 10.99 },
-  { id: 5, title: "The Catcher in the Rye", author: "J.D. Salinger", price: 8.99 },
-]
 const fetcher =()=>{
  return axios.get('https://api.quotable.io/quotes?tags=inspirational,famous-quotes&maxLength=100')
   .then(res => res.data)
   .catch(error => console.error('Request failed:', error));
 };
 export default function Store() {
-  const [cart, setCart] = useState<Book[]>([]);
-  const [quotes,setQuotes]=useState<any[]>([]);
+  const [cartClicked, setCartClicked] = useState<boolean>(true);
+  const cart = useSelector((state:any)=> state.carts.products)
   const {data:quotesData,error:quotesError}=useSWR('/api/quotes',fetcher)
   const {data,error,isLoading,mutate}=useSWR('api/user/books',getAllBooks)
-console.log(data);
-  const addToCart = (book: Book) => {
-    setCart([...cart, book]);
-  };
-
+  const {data:ltbooksData,error:ltbooksError}=useSWR('/api/user/latest/books',latestBooks)
+  console.log(ltbooksData);
   
+  const commonIds = commonId();
+
  if(isLoading) return <>Loading</>
   return (
     <div>
-      {/* <h1>Book Store</h1>
-      <div>
-        {books.map((book) => (
-          <div key={book.id}>
-            <h2>{book.title}</h2>
-            <p>Author: {book.author}</p>
-            <p>Price: ${book.price.toFixed(2)}</p>
-            <button onClick={() => addToCart(book)}>Add to Cart</button>
-          </div>
-        ))}
-      </div>
-      <h2>Cart</h2>
-      <div>
-        {cart.map((book) => (
-          <div key={book.id}>
-            <h3>{book.title}</h3>
-            <p>Author: {book.author}</p>
-            <p>Price: ${book.price.toFixed(2)}</p>
-          </div>
-        ))}
-      </div> */}
+     
         <Container>
         <div className="mx-auto w-full">
         <h1 className="text-2xl mb-4 text-[#006A10] font-bold">TOP AUTHORS</h1>
@@ -222,23 +196,22 @@ console.log(data);
         }
       </Swiper>
             </div>
-            <div className="md:w-8/12 w-full border border-[#634532] h-40 flex gap-4 rounded-xl relative items-center">
+            <div className="md:w-8/12 w-full border border-[#634532] h-40 flex  rounded-xl relative items-center">
             <h1
               className=" uppercase font-semibold  tracking-wide rotate-180 bg-[#634532] text-white h-full py-5 rounded-r-xl px-2"
               style={{ writingMode: "vertical-lr" }}
             >
               New Arrivals  
             </h1>
-              <div className="flex flex-row items-center gap-4 w-full h-full overflow-x-auto md:overflow-hidden">
-                        <Image src={bokcover} className=" w-[83px] h-[134px]" alt="coverimage" />
-                        <Image src={bokcover} className=" w-[83px] h-[134px]" alt="coverimage" />
-                        <Image src={bokcover} className=" w-[83px] h-[134px]" alt="coverimage" />
-                        <Image src={bokcover} className=" w-[83px] h-[134px]" alt="coverimage" />
-                        <Image src={bokcover} className=" w-[83px] h-[134px]" alt="coverimage" />
-                        <Image src={bokcover} className=" w-[83px] h-[134px]" alt="coverimage" />
-                        <Image src={bokcover} className=" w-[83px] h-[134px]" alt="coverimage" />
-                        <Image src={bokcover} className=" w-[83px] h-[134px]" alt="coverimage" />
-                    </div>
+              <div className="flex flex-row items-center gap-4 w-full h-full overflow-x-auto md:overflow-hidden flex-1">
+                <Marquee className="flex  w-full " pauseOnHover={true} autoFill={true}>
+                {
+                  ltbooksData?.map((book:any,index:any)=>(
+                    <Image key={index} src={book?.coverimage} className="w-[83px] h-[134px] mr-4" height={134} width={83} alt="coverimage" />
+                  ))
+                }
+                </Marquee>
+              </div>
             </div>
         </div>
         <div>
@@ -248,25 +221,32 @@ console.log(data);
             </div>
             <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-x-4 gap-y-4">
               {
-                data?.map((book:any,index:any)=>(
+                data?.map((book: any, index: any) => (
                   <div key={index} className="group hover:h-fit p-4 flex flex-col items-center bg-slate-100 rounded-xl gap-y-2">
                     <Link href={`/store/${book?._id}`}>
-                    <div className={styles.imagecontainer}>
-                      <Image src={book?.coverimage} width={175} height={250}  alt="coverimage" />
-                    </div>
+                      <div className={styles.imagecontainer}>
+                        <Image src={book?.coverimage} width={175} height={250} alt="coverimage" />
+                      </div>
                     </Link>
-                  <div className=" group-hover:transition-all  ">
-                    <Button variant='primary' className="hidden  group-hover:flex gap-2 group-hover:transition-all group-hover:duration-1000 duration-100 ease-in-out">Add to Cart <ShoppingBag/></Button>
-                  <h1 className="group-hover:hidden group-hover:transition-all group-hover:duration-1000  ease-in-out  font-medium">{book?.title}</h1>
-                  <h2 className="group-hover:hidden group-hover:transition-all group-hover:duration-1000 duration-100 ease-in-out font-light">{book?.author}</h2>
+                    <div className="group-hover:transition-all">
+                      <Button
+                        variant="primary"
+                        className="hidden group-hover:flex gap-2 group-hover:transition-all group-hover:duration-1000 duration-100 ease-in-out"
+                        disabled={commonIds.includes(book?._id)}
+                      >
+                        {commonIds.includes(book?._id) ? "ADDED" : (
+                          <>
+                            <span>Add to Cart</span> <ShoppingBag />
+                          </>
+                        )}
+                      </Button>
+                      <h1 className="group-hover:hidden group-hover:transition-all group-hover:duration-1000 ease-in-out font-medium">{book?.title}</h1>
+                      <h2 className="group-hover:hidden group-hover:transition-all group-hover:duration-1000 duration-100 ease-in-out font-light">{book?.author}</h2>
+                    </div>
+                    <StarRating rating={3} />
                   </div>
-                  <StarRating rating={3}/>
-              </div>
                 ))
               }
-             
-               
-              
             </div>
         </div>
       </div>
@@ -274,4 +254,12 @@ console.log(data);
      
     </div>
   );
+
+  function commonId() {
+    const productIds = cart.map((item: any) => item.productId._id);
+    const commonIds = productIds.filter((id: any) => {
+      return data?.some((book: any) => book._id === id);
+    });
+    return commonIds;
+  }
 }

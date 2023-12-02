@@ -12,27 +12,36 @@ import {
 import { Checkbox } from "@/components/ui/checkbox";
 import { DropdownMenuCheckboxItemProps } from "@radix-ui/react-dropdown-menu";
 import { Button } from "@/components/ui/button";
-import { ChevronDown } from "lucide-react";
+import { BadgeIndianRupee, ChevronDown, Delete, MapIcon, Truck, XCircle } from "lucide-react";
 import Image from "next/image";
-import { CartCounter } from "@/container/user";
-import { useSelector } from "react-redux";
+import { CartCounter, CouponInput } from "@/container/user";
+import { useDispatch, useSelector } from "react-redux";
 import { Separator } from "@/components/ui/separator";
+import { ReadMore } from "@/components/general";
+import { setItems, setTotalPrice } from "@/redux/cartSlice";
+import { Input } from "@/components/ui/input";
 
 type Checked = DropdownMenuCheckboxItemProps["checked"];
 
 const cart = () => {
   const cart = useSelector((state: any) => state.carts.products);
+  const dispatch=useDispatch()
   const quantity = useSelector((state: any) => state.carts.quantity);
+  const totalPrice = useSelector((state:any)=> state.carts.total)
   const [showStatusBar, setShowStatusBar] = React.useState<Checked>(true);
   const [showActivityBar, setShowActivityBar] = React.useState<Checked>(false);
   const [showPanel, setShowPanel] = React.useState<Checked>(false);
-
-  console.log(cart)
-  console.log(cart[2]?.productId);
+  useEffect(() => {
+   
+  }, [cart])
   
+  console.log(cart);
+  const totalAmount = cart.reduce((total:any,item:any)=> total + item?.productId?.price*item?.quantity,0)
+  console.log(totalAmount)
+  dispatch(setTotalPrice(totalAmount))
   return (
     <Container className="flex gap-9">
-      <div className=" w-2/3">
+      <div className="w-8/12">
         <div className="border border-[#d6bbaa] rounded px-5 py-2 w-full flex justify-between items-center">
           <h1 className="flex gap-2 items-center text-xl font-medium">
             My Cart{" "}
@@ -43,7 +52,7 @@ const cart = () => {
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <h2 className="flex items-center cursor-pointer font-normal">
-                Filter <ChevronDown className="w-5 h-5" />
+                Filter <ChevronDown className="w-5 h-5"/>
               </h2>
             </DropdownMenuTrigger>
             <DropdownMenuContent className="w-56">
@@ -72,41 +81,74 @@ const cart = () => {
           </DropdownMenu>
         </div>
         <div>
-          {cart.map((item: any, index: any) => (
+          {cart.map((item: any, index: any) => {
+          console.log(item);
+          
+          return(
             <>
             <Separator className="mb-6 mt-4 bg-[#634532]"/>
              <div className="items-top flex space-x-2" key={index}>
               <Checkbox id="terms1" className="w-5 h-5" />
               <div className="grid gap-1.5 leading-none">
                 <h1 className="text-xl font-medium leading-4">{item?.productId?.title}</h1>
-                <div className="w-full flex ">
-                  {/* <Image
+                <div className="w-full flex gap-x-4 mt-4">
+                  <Image
                     src={item?.productId?.coverimage}
                     alt="cover image"
-                    width={70}
-                    height={100}
-                  /> */}
+                    width={100}
+                    height={150}
+                  />
                   <div className="">
-                    <p>
-                      Lorem, ipsum dolor sit amet consectetur adipisicing elit.
-                      Aliquam quisquam, ut quidem quaerat nemo possimus iste
-                      magni, odio nobis consequatur eaque ab et! Ipsa beatae
-                      temporibus est officia. Omnis, corporis!
-                    </p>
-                    <div>
-                      <h1>Rs. 200</h1>
-                      <CartCounter count={item?.quantity} />
+                    <ReadMore>
+                    {item?.productId?.description}
+                    </ReadMore>
+                    <div className="flex items-center justify-between mt-5">
+                      <h1 className="text-2xl font-medium flex gap-2 items-center">&#8377; {item?.productId?.price*item?.quantity}</h1>
+                      <div className="flex items-center gap-3">
+                        <XCircle className="w-8 h-8 cursor-pointer"/>
+                      <CartCounter count={item?.quantity} productId={item?.productId?._id} />
+                      </div>
                     </div>
                   </div>
                 </div>
               </div>
             </div>
             </>
-           
-          ))}
+          )})}
         </div>
       </div>
-      <div className="w-1/3 border h-[500px]"></div>
+      <div className="w-4/12 border h-fit p-6">
+        <h1 className="text-xl font-medium">Order Summary</h1>
+        <div className="my-5">
+          {
+            cart.map((item:any,index:any)=>(
+                <h2 key={index} className="flex gap-3 justify-between ">
+                  <span className="text-slate-600">x{item?.quantity}</span>
+                  <span className="text-left flex-1 text-slate-600">{item?.productId?.title}</span>
+                  <span className="text-slate-800 font-medium">&#8377;{item?.productId?.price * item?.quantity}</span>
+                </h2>
+            ))
+          }
+        </div>
+        <Separator/>
+        <div className="my-5">
+          <h1 className="text-xl font-medium">Delivery</h1>
+          <div className="my-3">
+            <h2 className="flex gap-4"><Truck className="text-slate-500"/> <span className="text-black font-semibold">IndiaPost Express</span> </h2>
+            <h2 className="flex gap-4 text-slate-500"><MapIcon className="text-slate-500"/> Deliver to<span className="text-black font-semibold">Malappuram</span> </h2>
+          </div>
+        </div>
+        <Separator/>
+        <div className="my-5">
+          <h1 className="flex justify-between">Order Total <span className="text-xl font-semibold">&#8377;{totalPrice}</span></h1>
+        </div>
+        <Separator/>
+        <div className="flex flex-col gap-4 my-5">
+          {/* <Input placeholder="Enter coupon code"/> */}
+          <CouponInput/>
+          <Button className="w-full" variant="primary">Checkout</Button>
+        </div>
+      </div>
     </Container>
   );
 };
